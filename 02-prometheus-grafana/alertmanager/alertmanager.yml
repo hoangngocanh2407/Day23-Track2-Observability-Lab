@@ -11,7 +11,7 @@ route:
 receivers:
   - name: 'slack'
     slack_configs:
-      - api_url: 'https://hooks.slack.com/services/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'
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
         channel: '#observability'
         send_resolved: true
         text: |
