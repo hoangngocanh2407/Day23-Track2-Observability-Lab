@@ -94,18 +94,19 @@ def main() -> int:
     for col, m in summary.items():
         print(f"  {col:<20} PSI={m['psi']:.3f}  KL={m['kl']:.3f}  KS={m['ks_stat']:.3f}  drift={m['drift']}")
 
-    # Optional: full Evidently HTML report (large dependency, gracefully skip if missing)
     try:
-        from evidently.report import Report
-        from evidently.metric_preset import DataDriftPreset
+        from evidently import Report
+        from evidently.presets import DataDriftPreset
 
         report = Report(metrics=[DataDriftPreset()])
-        report.run(reference_data=reference, current_data=current)
+        snapshot = report.run(reference_data=reference, current_data=current)
         html_path = REPORTS_DIR / "drift-report.html"
-        report.save_html(str(html_path))
+        snapshot.save_html(str(html_path))
         print(f"Wrote: {html_path}")
     except ImportError:
         print("evidently not installed; skipping HTML report. Install with: pip install evidently")
+    except Exception as e:
+        print(f"evidently report failed: {e}")
     return 0
 
 

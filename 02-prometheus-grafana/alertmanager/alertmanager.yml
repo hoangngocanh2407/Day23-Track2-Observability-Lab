@@ -1,51 +1,18 @@
 global:
   resolve_timeout: 1m
-  slack_api_url_file: ''   # we use webhook URL inline below
 
 route:
-  receiver: 'slack-default'
+  receiver: 'slack'
   group_by: ['alertname', 'service']
   group_wait: 10s
   group_interval: 1m
   repeat_interval: 1h
-  routes:
-    - matchers:
-        - severity = "critical"
-      receiver: 'slack-critical'
-      continue: true
-    - matchers:
-        - severity = "warning"
-      receiver: 'slack-default'
 
 receivers:
-  - name: 'slack-default'
+  - name: 'slack'
     slack_configs:
-      - api_url: '{{ env "SLACK_WEBHOOK_URL" }}'
+      - api_url: 'https://hooks.slack.com/services/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'
         channel: '#observability'
         send_resolved: true
-        title: '{{ if eq .Status "firing" }}🔥{{ else }}✅{{ end }} {{ .GroupLabels.alertname }}'
         text: |
-          {{ range .Alerts }}
-          *{{ .Annotations.summary }}*
-          {{ .Annotations.description }}
-          *Runbook:* {{ .Annotations.runbook_url }}
-          {{ end }}
-
-  - name: 'slack-critical'
-    slack_configs:
-      - api_url: '{{ env "SLACK_WEBHOOK_URL" }}'
-        channel: '#oncall'
-        send_resolved: true
-        title: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
-        text: |
-          {{ range .Alerts }}
-          *{{ .Annotations.summary }}*
-          {{ .Annotations.description }}
-          *Runbook:* {{ .Annotations.runbook_url }}
-          {{ end }}
-
-inhibit_rules:
-  # If the whole service is down, don't also page about latency on it.
-  - source_matchers: [alertname = "ServiceDown"]
-    target_matchers: [severity = "warning"]
-    equal: [service]
+          {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}

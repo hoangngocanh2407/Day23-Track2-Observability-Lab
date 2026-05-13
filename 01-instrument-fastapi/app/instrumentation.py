@@ -69,6 +69,25 @@ def setup_otel() -> None:
         BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint, insecure=True))
     )
     trace.set_tracer_provider(provider)
+
+    # OTel log export: bridge structlog → OTLP → Loki
+    from opentelemetry._logs import set_logger_provider
+    from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
+    from opentelemetry.sdk._logs import LoggerProvider
+    from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
+    from opentelemetry.sdk.resources import Resource as LogResource
+
+    log_endpoint = os.getenv("OTEL_EXPORTER_OTLP_LOG_ENDPOINT", "http://otel-collector:4317")
+    log_resource = LogResource.create({
+        "service.name": os.getenv("OTEL_SERVICE_NAME", "inference-api"),
+        "service.namespace": "aicb",
+    })
+    log_provider = LoggerProvider(resource=log_resource)
+    log_provider.add_log_record_processor(
+        BatchLogRecordProcessor(OTLPLogExporter(endpoint=log_endpoint, insecure=True))
+    )
+    set_logger_provider(log_provider)
+
     # Auto-instrument FastAPI handlers (creates server spans for every route)
     from fastapi import FastAPI  # local import: only needed at setup
 
@@ -77,6 +96,10 @@ def setup_otel() -> None:
 
 
 def _configure_logging() -> None:
+    from opentelemetry.instrumentation.logging import LoggingInstrumentor
+
+    LoggingInstrumentor().instrument()
+
     logging.basicConfig(
         format="%(message)s",
         stream=sys.stdout,

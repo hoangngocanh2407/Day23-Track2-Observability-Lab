@@ -22,7 +22,7 @@ datasources:
       derivedFields:
         - name: TraceID
           matcherRegex: '"trace_id":"([a-fA-F0-9]+)"'
-          url: '$${__value.raw}'
+          url: 'http://localhost:16686/trace/${__value.raw}'
           datasourceUid: jaeger
 
   - name: Jaeger

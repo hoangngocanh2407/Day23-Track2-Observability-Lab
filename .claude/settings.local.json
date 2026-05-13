@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python scripts/verify.py)",
+      "Bash(curl -s http://localhost:3100/ready)",
+      "Bash(curl -s http://localhost:3100/loki/api/v1/status/buildinfo)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('version:', d.get\\('version','?'\\)\\)\")",
+      "Bash(curl -sS -X POST http://localhost:8000/predict -H \"Content-Type: application/json\" -d \"{\\\\\"prompt\\\\\":\\\\\"What is machine learning?\\\\\",\\\\\"model\\\\\":\\\\\"llama3-mock\\\\\"}\")",
+      "Bash(timeout 70 bash -c 'cd 02-prometheus-grafana/load-test && python -m locust -f locustfile.py --headless -u 5 -r 1 -t 60s --host http://localhost:8000 2>&1')",
+      "Bash(curl -sS http://localhost:3000/api/datasources)",
+      "Bash(python -m json.tool)",
+      "Bash(curl -s http://localhost:9090/api/v1/rules)",
+      "Bash(curl -sS -u admin:admin http://localhost:3000/api/dashboards/uid/day23-ai-overview)",
+      "Bash(curl -sS -u admin:admin \"http://localhost:3000/render/d-solo/day23-ai-overview/ai-service-overview-day-23\" -o /tmp/dashboard.png)"
+    ]
+  }
+}

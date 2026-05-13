@@ -7,4 +7,5 @@ opentelemetry-sdk==1.28.2
 opentelemetry-exporter-otlp==1.28.2
 opentelemetry-instrumentation-fastapi==0.49b2
 opentelemetry-instrumentation-requests==0.49b2
+opentelemetry-instrumentation-logging==0.49b2
 structlog==24.4.0

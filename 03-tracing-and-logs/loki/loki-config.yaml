@@ -39,3 +39,14 @@ limits_config:
 compactor:
   working_directory: /loki/compactor
   compaction_interval: 10m
+
+ingester:
+  lifecycler:
+    address: 127.0.0.1
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+  wal:
+    enabled: true
+    dir: /loki/wal

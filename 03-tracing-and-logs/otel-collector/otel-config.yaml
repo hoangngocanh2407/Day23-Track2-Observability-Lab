@@ -18,6 +18,13 @@ receivers:
           static_configs:
             - targets: ['localhost:8888']
 
+  # Tailing app stdout for structured JSON logs -> Loki
+  filelog:
+    include: ["/var/log/app/*.log"]
+    operators:
+      - type: json_parser
+        parse_from: body
+
 processors:
   batch:
     send_batch_size: 1024
@@ -47,11 +54,15 @@ processors:
         action: upsert
 
 exporters:
-  # Traces → Jaeger via OTLP
+  # Traces -> Jaeger via OTLP gRPC (4317)
   otlp/jaeger:
     endpoint: jaeger:4317
     tls:
       insecure: true
+
+  # Logs -> Loki via OTel
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
 
   debug:
     verbosity: basic
@@ -62,6 +73,11 @@ service:
       receivers: [otlp]
       processors: [tail_sampling, resource, batch]
       exporters: [otlp/jaeger]
+
+    logs:
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [loki]
 
     metrics:
       receivers: [otlp, prometheus]

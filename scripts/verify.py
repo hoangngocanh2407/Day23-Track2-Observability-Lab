@@ -5,10 +5,16 @@ Run: python3 scripts/verify.py
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
 import requests
+
+# Disable Windows proxy for localhost on Windows
+if sys.platform == "win32":
+    os.environ["NO_PROXY"] = "localhost,127.0.0.1"
+    os.environ["no_proxy"] = "localhost,127.0.0.1"
 
 LAB = Path(__file__).resolve().parent.parent
 SUBMISSION = LAB / "submission"
@@ -95,7 +101,7 @@ def main() -> int:
     reflection = SUBMISSION / "REFLECTION.md"
     results.append(check(
         "submission: REFLECTION.md exists and is non-trivial",
-        reflection.exists() and len(reflection.read_text()) > 500,
+        reflection.exists() and len(reflection.read_text(encoding="utf-8")) > 500,
     ))
 
     print()
